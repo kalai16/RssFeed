@@ -9,7 +9,8 @@ import {
   Text,
   TouchableOpacity,
   Image,
-  ScrollView
+  ScrollView,
+  ActivityIndicator
 } from 'react-native';
 import { SearchBar } from 'react-native-elements'
 
@@ -47,14 +48,20 @@ class Home extends Component {
     this.props.getFeed();
   }
 
+  UNSAFE_componentWillReceiveProps(nextProps) {
+    this.setState({
+      data: nextProps.rssFeed
+    })
+  }
+
   navigateTo(item) {
     this.props.navigate('Detail', item);
   }
 
   IsLoading = () => {
     return (
-      <View>
-        <Text>Loading...</Text>
+      <View style={[styles.container, styles.horizontal]}>
+        <ActivityIndicator size = { 75 }/>
       </View>
     );
   }
@@ -73,8 +80,11 @@ class Home extends Component {
       })
     }
 
-    this.setState({ searchTerm: text, data: FreshData })
-    console.log(this.state.data)
+    this.setState({
+      searchTerm: text,
+      data: { items: FreshData }
+    })
+    //console.log(this.state.data)
   }
 
 
@@ -128,7 +138,7 @@ class Home extends Component {
         />
         <FlatList
           ListHeaderComponent={this.renderHeader}
-          data={this.state.data}
+          data={this.state.data.items}
           keyExtractor={Home.keyExtractor}
           renderItem={this.renderItem}
           style={{ flex: 1 }}
@@ -174,7 +184,14 @@ const styles = StyleSheet.create({
     fontFamily: 'sans-serif-condensed'
   },
   container: {
+    flex: 1,
+    justifyContent: 'center'
   },
+  horizontal: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    padding: 10
+  }
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Home);
